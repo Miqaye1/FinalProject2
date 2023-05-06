@@ -1,9 +1,11 @@
 package com.example.finalproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -66,8 +68,29 @@ public class HomeFragment extends Fragment {
 
     }
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.plus:
+                Intent intent = new Intent(getActivity(), PostActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.home_menu, menu); // Inflate the menu resource
+/*        MenuItem menuItem = menu.findItem(R.id.plus);
+        menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Start the PostActivity here
+                Intent intent = new Intent(getActivity(), PostActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });*/
         super.onCreateOptionsMenu(menu, inflater);
     }
 }

@@ -45,6 +45,10 @@
                 android:value="" />
         </activity>
         <activity android:name=".ProfileImage" />
+        <activity
+            android:name=".PostActivity"
+            android:label="Post Activity">
+        </activity>
     </application>
 
 </manifest>
