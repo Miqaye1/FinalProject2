@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -17,10 +18,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -35,6 +46,9 @@ public class PostActivity extends AppCompatActivity {
     Button submit;
     Uri ImageUri;
     RelativeLayout relativeLayout;
+    private FirebaseDatabase database;
+    private FirebaseStorage firebaseStorage;
+
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -54,6 +68,8 @@ public class PostActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.action_bar));
         }
 
+        database = FirebaseDatabase.getInstance("https://finalproject-11004-default-rtdb.europe-west1.firebasedatabase.app/");
+        firebaseStorage = FirebaseStorage.getInstance();
         description = findViewById(R.id.description);
         uploadbtn = findViewById(R.id.uploadbtn);
         productImage = findViewById(R.id.productImage);
@@ -72,7 +88,47 @@ public class PostActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                if (currentUser != null) {
+                    final String userId = currentUser.getUid();
 
+                    final StorageReference reference = firebaseStorage.getReference().child("post")
+                            .child(System.currentTimeMillis() + "");
+
+                    reference.putFile(ImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    ProjectModel model = new ProjectModel();
+                                    model.setProductImage(uri.toString());
+                                    model.setDescription(description.getText().toString());
+
+                                    DatabaseReference userPostRef = database.getReference("users")
+                                            .child(userId)
+                                            .child("post");
+
+                                    String postKey = userPostRef.push().getKey();
+                                    userPostRef.child(postKey).setValue(model)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(PostActivity.this, "Error Occurred", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    Toast.makeText(PostActivity.this, "User not authenticated", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

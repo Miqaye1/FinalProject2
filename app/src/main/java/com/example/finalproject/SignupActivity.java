@@ -10,7 +10,11 @@ import android.util.Log;
 import android.view.View;
 import com.example.finalproject.databinding.ActivitySignupBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
@@ -26,6 +30,7 @@ public class SignupActivity extends AppCompatActivity {
     FirebaseFirestore firestoreDB = FirebaseFirestore.getInstance();
     CollectionReference usersRef = firestoreDB.collection("users");
     DatabaseReference realtimeDBRef = FirebaseDatabase.getInstance("https://finalproject-11004-default-rtdb.europe-west1.firebasedatabase.app/").getReference("users");
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,14 +63,26 @@ public class SignupActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     if (task.isSuccessful() && task.getResult().isEmpty()) {
-                                        DatabaseHelper helperClass = new DatabaseHelper(name, surname, email, password);
-                                        String userId = UUID.randomUUID().toString();
-                                        DocumentReference userDocRef = usersRef.document(userId);
-                                        userDocRef.set(helperClass);
-                                        realtimeDBRef.child(userId).setValue(helperClass);
+                                        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                                    @Override
+                                                    public void onSuccess(AuthResult authResult) {
+                                                        String userId = authResult.getUser().getUid();
+                                                        DatabaseHelper helperClass = new DatabaseHelper(name, surname, email, password);
+                                                        DocumentReference userDocRef = usersRef.document(userId);
+                                                        userDocRef.set(helperClass);
+                                                        realtimeDBRef.child(userId).setValue(helperClass);
 
-                                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                                        startActivity(intent);
+                                                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                                        startActivity(intent);
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        CustomToast.showErrorToast(SignupActivity.this, "An error occurred!", "Failed to create user: " + e.getMessage(), 1000);
+                                                    }
+                                                });
                                     } else {
                                         CustomToast.showErrorToast(SignupActivity.this, "An error occurred!", "You have already registered with this email", 1000);
                                     }
