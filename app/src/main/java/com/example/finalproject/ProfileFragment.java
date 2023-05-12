@@ -11,9 +11,12 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -51,10 +54,10 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        profileImage = view.findViewById(R.id.imageView5);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        profileImage = requireView().findViewById(R.id.imageView5);
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         String currentUserId = firebaseAuth.getCurrentUser().getUid();
@@ -68,10 +71,15 @@ public class ProfileFragment extends Fragment {
                     if (dataSnapshot.hasChild("profile_picture")) {
                         String imageUriString = dataSnapshot.child("profile_picture").getValue(String.class);
                         if (imageUriString != null) {
+                            RequestOptions requestOptions = new RequestOptions()
+                                    .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
+                                    .error(R.drawable.rsz_1rsz_1rsz_1rsz_1user);
+
                             Glide.with(requireContext())
                                     .load(imageUriString)
-                                    .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
-                                    .error(R.drawable.rsz_1rsz_1rsz_1rsz_1user) // Use the same placeholder image for error
+                                    .apply(requestOptions)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .skipMemoryCache(false)
                                     .into(profileImage);
                         } else {
                             profileImage.setImageResource(R.drawable.rsz_1rsz_1rsz_1rsz_1user); // Set placeholder image if imageUriString is null
@@ -89,6 +97,11 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), "Error retrieving profile picture", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        profileImage = view.findViewById(R.id.imageView5);
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override

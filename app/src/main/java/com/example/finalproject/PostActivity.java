@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -14,6 +15,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +50,7 @@ public class PostActivity extends AppCompatActivity {
     RelativeLayout relativeLayout;
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
+    private ProgressBar progressBar;
 
 
     @Override
@@ -73,7 +76,7 @@ public class PostActivity extends AppCompatActivity {
         description = findViewById(R.id.description);
         uploadbtn = findViewById(R.id.uploadbtn);
         productImage = findViewById(R.id.productImage);
-
+        progressBar = findViewById(R.id.progressBar);
         submit = findViewById(R.id.postbtn);
         relativeLayout = findViewById(R.id.relative);
 
@@ -88,6 +91,9 @@ public class PostActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+
+
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser != null) {
                     final String userId = currentUser.getUid();
@@ -115,6 +121,7 @@ public class PostActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
+                                                    progressBar.setVisibility(View.GONE);
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override

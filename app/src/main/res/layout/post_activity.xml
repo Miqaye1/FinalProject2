@@ -44,14 +44,16 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/textInputEditText"
                             android:layout_width="match_parent"
-                            android:layout_height="200dp"
+                            android:layout_height="100dp"
                             android:layout_marginTop="20dp"
                             android:background="@drawable/edit_background"
                             android:gravity="top|start"
                             android:textColor="@color/black"
                             android:textStyle="bold"
                             android:layout_below="@+id/textView"
-                            android:layout_alignParentStart="true" />
+                            android:layout_alignParentStart="true"
+                            android:layout_marginStart="36dp"
+                            android:layout_marginEnd="24dp"/>
                         <ImageView
                             android:id="@+id/uploadbtn"
                             android:layout_width="match_parent"
@@ -89,6 +91,14 @@
                             android:layout_below="@+id/imageView"
                             android:layout_alignParentStart="true"
                             android:layout_marginTop="20dp" />
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/productImage"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="16dp"
+                            android:visibility="gone" />
 
                 </LinearLayout>
 
