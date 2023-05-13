@@ -3,13 +3,14 @@ package com.example.finalproject;
 public class ProjectModel {
     private String description;
     private String productImage;
-    public ProjectModel(){
+    private String userId;
 
-    }
+    public ProjectModel() {}
 
-    public ProjectModel(String description, String productImage) {
+    public ProjectModel(String description, String productImage, String userId) {
         this.description = description;
         this.productImage = productImage;
+        this.userId = userId;
     }
 
     public String getDescription() {
@@ -26,5 +27,13 @@ public class ProjectModel {
 
     public void setProductImage(String productImage) {
         this.productImage = productImage;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

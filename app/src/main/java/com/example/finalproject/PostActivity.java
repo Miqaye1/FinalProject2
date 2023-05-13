@@ -3,12 +3,15 @@ package com.example.finalproject;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -40,6 +43,10 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -93,7 +100,6 @@ public class PostActivity extends AppCompatActivity {
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
 
-
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser != null) {
                     final String userId = currentUser.getUid();
@@ -101,7 +107,12 @@ public class PostActivity extends AppCompatActivity {
                     final StorageReference reference = firebaseStorage.getReference().child("post")
                             .child(System.currentTimeMillis() + "");
 
-                    reference.putFile(ImageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap bitmap = ((BitmapDrawable) productImage.getDrawable()).getBitmap();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                    byte[] imageByte = stream.toByteArray();
+
+                    reference.putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -109,7 +120,9 @@ public class PostActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     ProjectModel model = new ProjectModel();
                                     model.setProductImage(uri.toString());
-                                    model.setDescription(description.getText().toString());
+                                    String descriptionText = description.getText().toString();
+                                    model.setDescription(descriptionText);
+                                    model.setUserId(userId);
 
                                     DatabaseReference userPostRef = database.getReference("users")
                                             .child(userId)
@@ -131,6 +144,11 @@ public class PostActivity extends AppCompatActivity {
                                             });
                                 }
                             });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(PostActivity.this, "Error uploading image", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
@@ -168,8 +186,18 @@ public class PostActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 101 && resultCode == RESULT_OK){
-            ImageUri = data.getData();
-            productImage.setImageURI(ImageUri);
+            if(data != null){
+                ImageUri = data.getData();
+                try {
+                    Bitmap original = MediaStore.Images.Media.getBitmap(getContentResolver(),ImageUri);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    original.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                    productImage.setImageBitmap(original);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
         }
     }
 }

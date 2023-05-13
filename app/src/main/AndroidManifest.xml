@@ -46,6 +46,7 @@
                 android:value="" />
         </activity>
         <activity android:name=".ProfileImage" />
+        <activity android:name=".SinglePostActivity" />
         <activity
             android:name=".PostActivity"
             android:label="Post Activity">
