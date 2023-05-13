@@ -69,7 +69,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
                 Intent intent = new Intent(context, SinglePostActivity.class);
                 intent.putExtra("singleImage", model.getProductImage());
                 intent.putExtra("singleDescription", model.getDescription());
-                intent.putExtra("UserId", model.getUserId());
+                intent.putExtra("userId", model.getUserId());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             }

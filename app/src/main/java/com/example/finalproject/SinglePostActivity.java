@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +19,11 @@ public class SinglePostActivity extends AppCompatActivity {
 
     TextView singleDescription;
     private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
+
     TextView nameAndSurname;
     ImageView singleImage, profileImage;
+    String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -30,26 +34,30 @@ public class SinglePostActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profile_image);
         nameAndSurname = findViewById(R.id.nameAndSurname);
         Picasso.get().load(getIntent().getStringExtra("singleImage"))
-                .placeholder(R.drawable.nkar)
                 .into(singleImage);
 
         singleDescription.setText(getIntent().getStringExtra("singleDescription"));
-        String userId = getIntent().getStringExtra("UserId");
-        DatabaseReference userRef = database.getReference("users").child(userId).child("profile_image");
-        userRef.addValueEventListener(new ValueEventListener() {
+        userId = getIntent().getStringExtra("userId");
+        Log.d("SinglePostActivity", "userId: " + userId); // Add this line
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("users").child(userId);
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String profileImageUrl = dataSnapshot.getValue(String.class);
-                    String name = dataSnapshot.child("name").getValue(String.class);
-                    String surname = dataSnapshot.child("surname").getValue(String.class);
-                    // Load the profile_image using Picasso
-                    Picasso.get().load(profileImageUrl)
-                            .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
-                            .into(profileImage);
+                    if (dataSnapshot.exists()) {
+                        String profileImageUrl = dataSnapshot.child("profile_picture").getValue(String.class);
+                        String name = dataSnapshot.child("name").getValue(String.class);
+                        String surname = dataSnapshot.child("surname").getValue(String.class);
 
-                    nameAndSurname.setText(name + " " + surname);
-                } else {
+                        // Load the profile_image using Picasso
+                        Picasso.get().load(profileImageUrl)
+                                .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
+                                .into(profileImage);
+
+                        nameAndSurname.setText(name + " " + surname);
+                    }
+                }else {
                     // Handle the case where the profile_image URL is not available
                     // You can display a default profile_image or show an error message
                 }

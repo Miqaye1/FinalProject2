@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class ProfileFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
+    private Context context;
 
     public ProfileFragment() {
 
@@ -43,6 +45,18 @@ public class ProfileFragment extends Fragment {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.context = null;
     }
 
     @Override
@@ -67,6 +81,11 @@ public class ProfileFragment extends Fragment {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (context == null) {
+                    // Fragment is not attached to a context, do not proceed
+                    return;
+                }
+
                 if (dataSnapshot.exists()) {
                     if (dataSnapshot.hasChild("profile_picture")) {
                         String imageUriString = dataSnapshot.child("profile_picture").getValue(String.class);
@@ -75,7 +94,7 @@ public class ProfileFragment extends Fragment {
                                     .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
                                     .error(R.drawable.rsz_1rsz_1rsz_1rsz_1user);
 
-                            Glide.with(requireContext())
+                            Glide.with(context)
                                     .load(imageUriString)
                                     .apply(requestOptions)
                                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -94,7 +113,9 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(requireContext(), "Error retrieving profile picture", Toast.LENGTH_SHORT).show();
+                if (context != null) {
+                    Toast.makeText(context, "Error retrieving profile picture", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -80,7 +80,7 @@ public class PostActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance("https://finalproject-11004-default-rtdb.europe-west1.firebasedatabase.app/");
         firebaseStorage = FirebaseStorage.getInstance();
-        description = findViewById(R.id.description);
+        description = findViewById(R.id.textInputEditText);
         uploadbtn = findViewById(R.id.uploadbtn);
         productImage = findViewById(R.id.productImage);
         progressBar = findViewById(R.id.progressBar);
@@ -196,7 +196,6 @@ public class PostActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
             }
         }
     }
