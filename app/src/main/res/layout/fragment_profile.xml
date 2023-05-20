@@ -5,128 +5,147 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profileConstraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/profile_background">
+    android:layout_height="match_parent">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:clickable="true"
         android:id="@+id/imageView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:civ_border_width="2dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="44dp"
+        android:clickable="true"
         android:src="@drawable/rsz_1rsz_1rsz_1rsz_1user"
+        app:civ_border_width="2dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.466"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Miqayel Mnatsakanyan"
-        android:textColor="@color/button_colour"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
-
     <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="350dp"
-        android:layout_height="400dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/white_backround"
-        android:orientation="vertical"
+        android:id="@+id/settingsLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        app:layout_constraintTop_toBottomOf="@id/imageView5"
+        app:layout_constraintVertical_bias="0.083"
+        android:background="@drawable/setting_background">
 
         <TextView
-            android:id="@+id/textView9"
-            android:layout_width="wrap_content"
-            android:layout_height="49dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="30dp"
-            android:text="Name:                         Miqayel"
-            android:textColor="@color/button_colour"
-            android:textSize="22sp"
+            android:layout_width="20dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="Change Password"
+            android:textSize="25sp"
             android:textStyle="bold" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="@android:color/transparent" />
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="Arrow Icon"
+            android:padding="8dp"
+            android:src="@drawable/arrow" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/settingsLinearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout"
+        app:layout_constraintVertical_bias="0.083"
+        android:background="@drawable/setting_background">
 
         <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="49dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
-            android:text="Surname:          Mnatsakanyan"
-            android:textColor="@color/button_colour"
-            android:textSize="22sp"
-            android:textStyle="bold"></TextView>
+            android:layout_width="20dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="Favourites"
+            android:textSize="25sp"
+            android:textStyle="bold" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="@android:color/transparent" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="49dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
-            android:text="Email:        mikayel@gmail.com"
-            android:textColor="@color/button_colour"
-            android:textSize="22sp"
-            android:textStyle="bold"></TextView>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="@android:color/transparent" />
-
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="wrap_content"
-            android:layout_height="49dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
-            android:text="Password:           miqayel2007"
-            android:textColor="@color/button_colour"
-            android:textSize="22sp"
-            android:textStyle="bold"></TextView>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:background="@android:color/transparent" />
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="Arrow Icon"
+            android:padding="8dp"
+            android:src="@drawable/arrow" />
 
     </LinearLayout>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/loginButton"
-        style="@android:style/Widget.Button"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/button_background"
-        android:text="Edit"
-        android:textColor="@color/white"
-        android:textSize="25sp"
-        android:textStyle="bold"
+    <LinearLayout
+        android:id="@+id/settingsLinearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/setting_background"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout2"
+        app:layout_constraintVertical_bias="0.125">
+
+        <TextView
+            android:layout_width="20dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="My Posts"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="Arrow Icon"
+            android:padding="8dp"
+            android:src="@drawable/arrow" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/LogOut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/setting_background"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout3"
+        app:layout_constraintVertical_bias="0.193">
+
+        <TextView
+            android:layout_width="20dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="Log Out"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="Arrow Icon"
+            android:padding="8dp"
+            android:src="@drawable/arrow" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.finalproject;
 
-public class ProjectModel {
+import java.io.Serializable;
+
+public class ProjectModel implements Serializable {
     private String description;
     private String productImage;
     private String userId;

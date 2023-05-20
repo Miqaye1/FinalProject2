@@ -70,19 +70,24 @@ public class HomeFragment extends Fragment {
         PostAdapter recyclerAdapter = new PostAdapter(recycleList,requireContext());
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setAdapter(recyclerAdapter);
-        firebaseDatabase.getReference("users").child(userId).child("post").addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                     ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
-                     recycleList.add(projectModel);
-                 }
-                 recyclerAdapter.notifyDataSetChanged();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();
+                    DataSnapshot postSnapshot = userSnapshot.child("post");
+                    for (DataSnapshot dataSnapshot : postSnapshot.getChildren()) {
+                        ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
+                        projectModel.setUserId(userId);
+                        recycleList.add(projectModel);
+                    }
+                }
+                recyclerAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                // Handle the cancellation error if needed
             }
         });
         return view;
