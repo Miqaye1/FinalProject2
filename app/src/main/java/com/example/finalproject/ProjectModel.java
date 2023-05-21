@@ -1,18 +1,23 @@
 package com.example.finalproject;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class ProjectModel implements Serializable {
     private String description;
     private String productImage;
     private String userId;
+/*    private List<String> tags;*/
 
-    public ProjectModel() {}
+    public ProjectModel() {
+        // Default constructor required for Firebase
+    }
 
-    public ProjectModel(String description, String productImage, String userId) {
+    public ProjectModel(String description, String productImage, String userId, List<String> tags) {
         this.description = description;
         this.productImage = productImage;
         this.userId = userId;
+        /*this.tags = tags;*/
     }
 
     public String getDescription() {
@@ -38,4 +43,12 @@ public class ProjectModel implements Serializable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+/*    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }*/
 }

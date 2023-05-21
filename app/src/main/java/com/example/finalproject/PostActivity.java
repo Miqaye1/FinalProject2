@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -17,6 +18,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -27,9 +29,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -47,6 +51,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -54,6 +59,7 @@ public class PostActivity extends AppCompatActivity {
     ImageView uploadbtn, productImage;
     Button submit;
     Uri ImageUri;
+
     RelativeLayout relativeLayout;
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
@@ -65,12 +71,14 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_activity);
         ActionBar actionBar = getSupportActionBar();
-
-        // Set the background color of the action bar
+        TextInputLayout tagsLayout = findViewById(R.id.tagsLayout);
+        EditText tagsEditText = findViewById(R.id.tagsET);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        HomeFragment homeFragment = (HomeFragment) fragmentManager.findFragmentByTag("home_fragment");
+        int colorGreen = getResources().getColor(R.color.action_bar);
+        tagsLayout.setDefaultHintTextColor(ColorStateList.valueOf(colorGreen));
+        tagsEditText.setHighlightColor(colorGreen);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FFFFFF"))); // Red color
-
-        // Set other properties of the action bar as needed
-
         SpannableString s = new SpannableString("TravelEasy");
         s.setSpan(new ForegroundColorSpan(Color.parseColor("#348881")), 0, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         actionBar.setTitle(s);
@@ -109,7 +117,7 @@ public class PostActivity extends AppCompatActivity {
 
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     Bitmap bitmap = ((BitmapDrawable) productImage.getDrawable()).getBitmap();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
                     byte[] imageByte = stream.toByteArray();
 
                     reference.putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -123,6 +131,11 @@ public class PostActivity extends AppCompatActivity {
                                     String descriptionText = description.getText().toString();
                                     model.setDescription(descriptionText);
                                     model.setUserId(userId);
+
+                                    // Get tags from the TagsInputEditText
+                                    /*String tagsText = tagsEditText.getText().toString();
+                                    String[] tags = tagsText.split(" ");
+                                    model.setTags(Arrays.asList(tags));*/
 
                                     DatabaseReference userPostRef = database.getReference("users")
                                             .child(userId)

@@ -11,6 +11,18 @@
         android:layout_height="match_parent"
         >
 
+        <LinearLayout
+            android:id="@+id/layoutContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:padding="10dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Add your buttons dynamically here -->
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/main_container"
             android:layout_width="0dp"
