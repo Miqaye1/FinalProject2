@@ -61,7 +61,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
                         return false;
                     }
                 })
-                .placeholder(R.drawable.nkar) // Optional: Placeholder image while loading
+                .placeholder(R.drawable.loading) // Optional: Placeholder image while loading
                 .into(holder.postImage);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

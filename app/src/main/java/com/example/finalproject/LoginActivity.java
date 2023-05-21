@@ -4,10 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.finalproject.databinding.ActivityLoginBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -15,8 +20,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class LoginActivity extends AppCompatActivity {
 
-
     ActivityLoginBinding binding;
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     CollectionReference usersRef = db.collection("users");
 
@@ -36,37 +41,29 @@ public class LoginActivity extends AppCompatActivity {
                 String email = binding.loginEmail.getText().toString();
                 String password = binding.loginPassword.getText().toString();
 
-                if(email.equals("") || password.equals("")) {
+                if (email.equals("") || password.equals("")) {
                     CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "All fields are mandatory", 1000);
-                }
-                else{
-                    usersRef.whereEqualTo("email", email)
-                            .get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                if (!queryDocumentSnapshots.isEmpty()) {
-                                    boolean passwordMatched = false;
-                                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                        DatabaseHelper user = documentSnapshot.toObject(DatabaseHelper.class);
-                                        if (user.getPassword().equals(password)) {
-                                            passwordMatched = true;
-                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                            startActivity(intent);
-                                            break;
-                                        }
-                                    }
-                                    if (!passwordMatched) {
-                                        CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "Wrong password", 1000);
-                                    }
-                                } else {
-                                    CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "User not found", 1000);
+                } else {
+                    firebaseAuth.signInWithEmailAndPassword(email, password)
+                            .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                @Override
+                                public void onSuccess(AuthResult authResult) {
+                                    String userId = authResult.getUser().getUid();
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.putExtra("userId", userId);
+                                    startActivity(intent);
                                 }
                             })
-                            .addOnFailureListener(e -> {
-                                CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "Login failed. Please check your internet connection", 1000);
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "Login failed: " + e.getMessage(), 1000);
+                                }
                             });
                 }
             }
         });
+
         binding.gotoSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

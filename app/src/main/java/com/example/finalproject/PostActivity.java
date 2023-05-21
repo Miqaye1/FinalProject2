@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -30,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,38 +49,26 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class PostActivity extends AppCompatActivity {
-
     TextView description;
     ImageView uploadbtn, productImage;
     Button submit;
     Uri ImageUri;
-
     RelativeLayout relativeLayout;
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
     private ProgressBar progressBar;
-
-
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_activity);
         ActionBar actionBar = getSupportActionBar();
-        TextInputLayout tagsLayout = findViewById(R.id.tagsLayout);
-        EditText tagsEditText = findViewById(R.id.tagsET);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        HomeFragment homeFragment = (HomeFragment) fragmentManager.findFragmentByTag("home_fragment");
-        int colorGreen = getResources().getColor(R.color.action_bar);
-        tagsLayout.setDefaultHintTextColor(ColorStateList.valueOf(colorGreen));
-        tagsEditText.setHighlightColor(colorGreen);
+        // Set the background color of the action bar
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FFFFFF"))); // Red color
+        // Set other properties of the action bar as needed
         SpannableString s = new SpannableString("TravelEasy");
         s.setSpan(new ForegroundColorSpan(Color.parseColor("#348881")), 0, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         actionBar.setTitle(s);
@@ -86,15 +76,17 @@ public class PostActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.action_bar));
         }
 
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String userId2 = currentUser.getUid();
         database = FirebaseDatabase.getInstance("https://finalproject-11004-default-rtdb.europe-west1.firebasedatabase.app/");
         firebaseStorage = FirebaseStorage.getInstance();
+        description = findViewById(R.id.description);
         description = findViewById(R.id.textInputEditText);
         uploadbtn = findViewById(R.id.uploadbtn);
         productImage = findViewById(R.id.productImage);
         progressBar = findViewById(R.id.progressBar);
         submit = findViewById(R.id.postbtn);
         relativeLayout = findViewById(R.id.relative);
-
         uploadbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,19 +99,15 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser != null) {
                     final String userId = currentUser.getUid();
-
                     final StorageReference reference = firebaseStorage.getReference().child("post")
                             .child(System.currentTimeMillis() + "");
-
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     Bitmap bitmap = ((BitmapDrawable) productImage.getDrawable()).getBitmap();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
                     byte[] imageByte = stream.toByteArray();
-
                     reference.putBytes(imageByte).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -131,16 +119,9 @@ public class PostActivity extends AppCompatActivity {
                                     String descriptionText = description.getText().toString();
                                     model.setDescription(descriptionText);
                                     model.setUserId(userId);
-
-                                    // Get tags from the TagsInputEditText
-                                    /*String tagsText = tagsEditText.getText().toString();
-                                    String[] tags = tagsText.split(" ");
-                                    model.setTags(Arrays.asList(tags));*/
-
                                     DatabaseReference userPostRef = database.getReference("users")
                                             .child(userId)
                                             .child("post");
-
                                     String postKey = userPostRef.push().getKey();
                                     userPostRef.child(postKey).setValue(model)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -148,6 +129,11 @@ public class PostActivity extends AppCompatActivity {
                                                 public void onSuccess(Void unused) {
                                                     Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
                                                     progressBar.setVisibility(View.GONE);
+                                                    /*FragmentManager fragmentManager = getSupportFragmentManager();
+                                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                                    HomeFragment homeFragment = new HomeFragment();
+                                                    fragmentTransaction.replace(R.id.fragment_container, homeFragment, "home_fragment");
+                                                    fragmentTransaction.commit();*/
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
@@ -155,6 +141,11 @@ public class PostActivity extends AppCompatActivity {
                                                     Toast.makeText(PostActivity.this, "Error Occurred", Toast.LENGTH_SHORT).show();
                                                 }
                                             });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(PostActivity.this, "Error retrieving download URL", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -170,7 +161,6 @@ public class PostActivity extends AppCompatActivity {
             }
         });
     }
-
     private void UploadImage() {
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -182,19 +172,16 @@ public class PostActivity extends AppCompatActivity {
                         intent.setAction(Intent.ACTION_GET_CONTENT);
                         startActivityForResult(intent, 101);
                     }
-
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
                         Toast.makeText(PostActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
                     }
-
                     @Override
                     public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
                         permissionToken.continuePermissionRequest();
                     }
                 }).check();
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -209,6 +196,7 @@ public class PostActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+
             }
         }
     }

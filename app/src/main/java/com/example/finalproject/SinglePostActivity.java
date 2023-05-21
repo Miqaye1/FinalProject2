@@ -54,9 +54,11 @@ public class SinglePostActivity extends AppCompatActivity {
         singleImage = findViewById(R.id.singleImage);
         profileImage = findViewById(R.id.profile_image);
         nameAndSurname = findViewById(R.id.nameAndSurname);
-        Picasso.get().load(getIntent().getStringExtra("singleImage"))
+        String imageUrl = getIntent().getStringExtra("singleImage");
+        Picasso.get()
+                .load(imageUrl)
+                .placeholder(R.drawable.loading) // Set the placeholder image resource
                 .into(singleImage);
-
         singleDescription.setText(getIntent().getStringExtra("singleDescription"));
         Bundle extras = getIntent().getExtras();
         if (extras != null) {

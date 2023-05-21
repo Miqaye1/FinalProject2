@@ -7,7 +7,7 @@ public class ProjectModel implements Serializable {
     private String description;
     private String productImage;
     private String userId;
-/*    private List<String> tags;*/
+    private List<String> tags;
 
     public ProjectModel() {
         // Default constructor required for Firebase
@@ -17,7 +17,7 @@ public class ProjectModel implements Serializable {
         this.description = description;
         this.productImage = productImage;
         this.userId = userId;
-        /*this.tags = tags;*/
+        this.tags = tags;
     }
 
     public String getDescription() {
@@ -44,7 +44,7 @@ public class ProjectModel implements Serializable {
         this.userId = userId;
     }
 
-/*    public List<String> getTags() {
+/*.\    public List<String> getTags() {
         return tags;
     }
 

@@ -17,6 +17,7 @@
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -86,5 +87,20 @@
                 </LinearLayout>
             </ScrollView>
         </androidx.cardview.widget.CardView>
+        <ToggleButton
+            android:id="@+id/toggleButton"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:textOff=""
+            android:textOn=""
+            android:background="@drawable/toggle_selector"
+            app:layout_constraintTop_toTopOf="@id/card
+"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_gravity="top|end" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
