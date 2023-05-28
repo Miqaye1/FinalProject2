@@ -23,47 +23,51 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FFFFFF")));
+            SpannableString s = new SpannableString("TravelEasy");
+            s.setSpan(new ForegroundColorSpan(Color.parseColor("#348881")), 0, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            actionBar.setTitle(s);
+        }
 
-        // Set the background color of the action bar
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FFFFFF"))); // Red color
-
-        // Set other properties of the action bar as needed
-
-        SpannableString s = new SpannableString("TravelEasy");
-        s.setSpan(new ForegroundColorSpan(Color.parseColor("#348881")), 0, s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        actionBar.setTitle(s);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.action_bar));
         }
-/*        if (actionBar != null) {
-            actionBar.hide();
-        }*/
-        super.onCreate(savedInstanceState);
-        binding =ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+
         replaceFragment(new HomeFragment());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
-            switch(item.getItemId()){
-
+            switch (item.getItemId()) {
                 case R.id.home:
                     replaceFragment(new HomeFragment());
                     break;
                 case R.id.plane:
                     replaceFragment(new PlaneFragment());
                     break;
+                case R.id.favourites:
+                    replaceFragment(new FavouritesFragment());
+                    break;
                 case R.id.profile:
                     replaceFragment(new ProfileFragment());
                     break;
-
             }
             return true;
         });
+
+        // Check if there is an intent with a fragment to load
+        String fragmentToLoad = getIntent().getStringExtra("fragmentToLoad");
+        if (fragmentToLoad != null && fragmentToLoad.equals("home_fragment")) {
+            // Replace the current fragment with the HomeFragment
+            replaceFragment(new HomeFragment());
+        }
     }
 
-    private void replaceFragment(Fragment fragment){
+    private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);

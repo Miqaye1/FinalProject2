@@ -123,17 +123,18 @@ public class PostActivity extends AppCompatActivity {
                                             .child(userId)
                                             .child("post");
                                     String postKey = userPostRef.push().getKey();
+                                    model.setPostId(postKey);
                                     userPostRef.child(postKey).setValue(model)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
                                                     progressBar.setVisibility(View.GONE);
-                                                    /*FragmentManager fragmentManager = getSupportFragmentManager();
-                                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                                    HomeFragment homeFragment = new HomeFragment();
-                                                    fragmentTransaction.replace(R.id.fragment_container, homeFragment, "home_fragment");
-                                                    fragmentTransaction.commit();*/
+                                                    Intent intent = new Intent(PostActivity.this, MainActivity.class);
+                                                    intent.putExtra("fragmentToLoad", "home_fragment");
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                    finish();
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override

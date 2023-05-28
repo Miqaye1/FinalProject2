@@ -22,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <LinearLayout
         android:id="@+id/settingsLinearLayout"
         android:layout_width="match_parent"
@@ -32,7 +33,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView5"
+        app:layout_constraintTop_toBottomOf="@id/textView2"
         app:layout_constraintVertical_bias="0.083"
         android:background="@drawable/setting_background">
 
@@ -42,48 +43,18 @@
             android:layout_weight="1"
             android:padding="8dp"
             android:text="Change Password"
-            android:textSize="25sp"
+            android:textSize="23sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="50dp"
+            android:layout_width="43dp"
             android:layout_height="wrap_content"
             android:contentDescription="Arrow Icon"
             android:padding="8dp"
             android:src="@drawable/arrow" />
 
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/settingsLinearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout"
-        app:layout_constraintVertical_bias="0.083"
-        android:background="@drawable/setting_background">
 
-        <TextView
-            android:layout_width="20dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:padding="8dp"
-            android:text="Favourites"
-            android:textSize="25sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:contentDescription="Arrow Icon"
-            android:padding="8dp"
-            android:src="@drawable/arrow" />
-
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/settingsLinearLayout3"
@@ -95,7 +66,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout2"
+        app:layout_constraintTop_toBottomOf="@id/settingsLinearLayout"
         app:layout_constraintVertical_bias="0.125">
 
         <TextView
@@ -104,11 +75,11 @@
             android:layout_weight="1"
             android:padding="8dp"
             android:text="My Posts"
-            android:textSize="25sp"
+            android:textSize="23sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="50dp"
+            android:layout_width="43dp"
             android:layout_height="wrap_content"
             android:contentDescription="Arrow Icon"
             android:padding="8dp"
@@ -136,16 +107,42 @@
             android:layout_weight="1"
             android:padding="8dp"
             android:text="Log Out"
-            android:textSize="25sp"
+            android:textSize="23sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="50dp"
+            android:layout_width="43dp"
             android:layout_height="wrap_content"
             android:contentDescription="Arrow Icon"
             android:padding="8dp"
             android:src="@drawable/arrow" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:text="TextView"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/imageView5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

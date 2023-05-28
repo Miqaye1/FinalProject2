@@ -21,10 +21,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 public class HomeFragment extends Fragment {
     RecyclerView recyclerView;
@@ -67,21 +65,29 @@ public class HomeFragment extends Fragment {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         String userId = currentUser.getUid();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        PostAdapter recyclerAdapter = new PostAdapter(recycleList,requireContext());
-        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+        FavouritesAdapter recyclerAdapter = new FavouritesAdapter(recycleList, requireContext());
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setAdapter(recyclerAdapter);
         firebaseDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<ProjectModel> newRecycleList = new ArrayList<>(); // Create a new list for updated order
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     String userId = userSnapshot.getKey();
                     DataSnapshot postSnapshot = userSnapshot.child("post");
+                    ArrayList<DataSnapshot> postSnapshots = new ArrayList<>();
                     for (DataSnapshot dataSnapshot : postSnapshot.getChildren()) {
+                        postSnapshots.add(dataSnapshot);
+                    }
+                    Collections.reverse(postSnapshots); // Reverse the order of postSnapshots
+                    for (DataSnapshot dataSnapshot : postSnapshots) {
                         ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
                         projectModel.setUserId(userId);
-                        recycleList.add(projectModel);
+                        newRecycleList.add(projectModel); // Add to newRecycleList in reverse order
                     }
                 }
+                recycleList.clear(); // Clear the original recycleList
+                recycleList.addAll(newRecycleList); // Add newRecycleList to recycleList
                 recyclerAdapter.notifyDataSetChanged();
             }
 

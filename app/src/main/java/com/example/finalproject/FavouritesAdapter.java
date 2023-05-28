@@ -22,12 +22,12 @@ import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
+public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.ViewHolder>{
 
     ArrayList<ProjectModel> list;
     Context context;
 
-    public PostAdapter(ArrayList<ProjectModel> list, Context context) {
+    public FavouritesAdapter(ArrayList<ProjectModel> list, Context context) {
         this.list = list;
         this.context = context;
     }
@@ -36,7 +36,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(context).inflate(R.layout.item,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item2,parent,false);
         return new ViewHolder(view);
     }
 
@@ -90,7 +90,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            postImage = itemView.findViewById(R.id.item_imageView);
+            postImage = itemView.findViewById(R.id.item2_imageView);
         }
     }
 }

@@ -8,14 +8,19 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,8 +37,9 @@ public class SinglePostActivity extends AppCompatActivity {
     TextView nameAndSurname;
     ImageView singleImage, profileImage;
     String userId;
+    private String userId2;
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_post);
         ActionBar actionBar = getSupportActionBar();
@@ -50,6 +56,13 @@ public class SinglePostActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.action_bar));
         }
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser != null){
+            userId2 = currentUser.getUid();
+        }
+        else{
+            Toast.makeText(this, "UserId is null", Toast.LENGTH_SHORT).show();
+        }
         singleDescription = findViewById(R.id.singleDescription);
         singleImage = findViewById(R.id.singleImage);
         profileImage = findViewById(R.id.profile_image);
@@ -64,7 +77,7 @@ public class SinglePostActivity extends AppCompatActivity {
         if (extras != null) {
             userId = extras.getString("userId");
         }
-       /* userId = (String) getIntent().getSerializableExtra("userId");*/
+        /* userId = (String) getIntent().getSerializableExtra("userId");*/
         Log.d("SinglePostActivity", "userId: " + userId); // Add this line
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("users").child(userId);
@@ -84,7 +97,7 @@ public class SinglePostActivity extends AppCompatActivity {
 
                         nameAndSurname.setText(name + " " + surname);
                     }
-                }else {
+                } else {
                     // Handle the case where the profile_image URL is not available
                     // You can display a default profile_image or show an error message
                 }
@@ -93,6 +106,59 @@ public class SinglePostActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle the error case
+            }
+        });
+        ToggleButton toggleButton = findViewById(R.id.toggleButton);
+        String postId = getIntent().getStringExtra("postId");
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId2);
+        DatabaseReference favouritesRef = userRef.child("favourites");
+        favouritesRef.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // The post is in the user's favorites
+                    toggleButton.setChecked(true);
+                } else {
+                    // The post is not in the user's favorites
+                    toggleButton.setChecked(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle any errors that occur
+            }
+        });
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                toggleFavourite(postId, isChecked);
+            }
+        });
+    }
+    private void toggleFavourite(String postId, boolean isChecked) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        userId2 = currentUser.getUid();
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId2);
+        DatabaseReference favouritesRef = userRef.child("favourites");
+
+        // Check if the post is already in the user's favourites
+        favouritesRef.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (isChecked) {
+                    // Add the post to favourites
+                    favouritesRef.child(postId).setValue(true);
+                } else {
+                    // Remove the post from favourites
+                    favouritesRef.child(postId).removeValue();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle any errors that occur
             }
         });
     }

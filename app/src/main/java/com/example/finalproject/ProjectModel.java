@@ -5,6 +5,7 @@ import java.util.List;
 
 public class ProjectModel implements Serializable {
     private String description;
+    private String postId;
     private String productImage;
     private String userId;
     private List<String> tags;
@@ -43,12 +44,11 @@ public class ProjectModel implements Serializable {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
-/*.\    public List<String> getTags() {
-        return tags;
+    public String getPostId() {
+        return postId;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }*/
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
 }
