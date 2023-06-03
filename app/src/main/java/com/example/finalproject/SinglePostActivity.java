@@ -1,5 +1,6 @@
 package com.example.finalproject;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -8,6 +9,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -77,8 +79,6 @@ public class SinglePostActivity extends AppCompatActivity {
         if (extras != null) {
             userId = extras.getString("userId");
         }
-        /* userId = (String) getIntent().getSerializableExtra("userId");*/
-        Log.d("SinglePostActivity", "userId: " + userId); // Add this line
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("users").child(userId);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -135,7 +135,25 @@ public class SinglePostActivity extends AppCompatActivity {
                 toggleFavourite(postId, isChecked);
             }
         });
+        nameAndSurname.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SinglePostActivity.this, PostProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
+        });
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SinglePostActivity.this, PostProfileActivity.class);
+                intent.putExtra("userId", userId);
+                startActivity(intent);
+            }
+        });
+
     }
+
     private void toggleFavourite(String postId, boolean isChecked) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         userId2 = currentUser.getUid();

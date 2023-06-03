@@ -38,6 +38,7 @@ public class FavouritesFragment extends Fragment {
 
     public FavouritesFragment() {
     }
+
     public static FavouritesFragment newInstance(String param1, String param2) {
         FavouritesFragment fragment = new FavouritesFragment();
         Bundle args = new Bundle();
@@ -73,32 +74,28 @@ public class FavouritesFragment extends Fragment {
         favouritesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ArrayList<String> favoritePostIds = new ArrayList<>();
+                recycleList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     String postId = postSnapshot.getKey();
-                    favoritePostIds.add(postId);
-                }
-
-                DatabaseReference postsRef = firebaseDatabase.getReference("users").child(userId).child("post");
-                postsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            String postId = postSnapshot.getKey();
-                            if (favoritePostIds.contains(postId)) {
-                                ProjectModel projectModel = postSnapshot.getValue(ProjectModel.class);
+                    boolean isFavorite = postSnapshot.getValue(Boolean.class);
+                    if (isFavorite) {
+                        DatabaseReference postRef = firebaseDatabase.getReference("users").child(userId).child("post").child(postId);
+                        postRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
                                 projectModel.setUserId(userId);
                                 recycleList.add(projectModel);
+                                recyclerAdapter.notifyDataSetChanged();
                             }
-                        }
-                        recyclerAdapter.notifyDataSetChanged();
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Handle the cancellation error if needed
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                // Handle the cancellation error if needed
+                            }
+                        });
                     }
-                });
+                }
             }
 
             @Override

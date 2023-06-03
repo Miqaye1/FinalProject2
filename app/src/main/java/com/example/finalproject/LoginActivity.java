@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -48,10 +49,15 @@ public class LoginActivity extends AppCompatActivity {
                             .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                 @Override
                                 public void onSuccess(AuthResult authResult) {
-                                    String userId = authResult.getUser().getUid();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    intent.putExtra("userId", userId);
-                                    startActivity(intent);
+                                    FirebaseUser user = authResult.getUser();
+                                    if (user != null/* && user.isEmailVerified()*/) {
+                                        String userId = user.getUid();
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        intent.putExtra("userId", userId);
+                                        startActivity(intent);
+                                    } else {
+                                        CustomToast.showErrorToast(LoginActivity.this, "An error occurred!", "Please verify your email before logging in.", 1000);
+                                    }
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {

@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
 import com.example.finalproject.databinding.ActivitySignupBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
@@ -67,14 +70,12 @@ public class SignupActivity extends AppCompatActivity {
                                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                                     @Override
                                                     public void onSuccess(AuthResult authResult) {
+                                                        sendEmailVerification(authResult.getUser());
                                                         String userId = authResult.getUser().getUid();
                                                         DatabaseHelper helperClass = new DatabaseHelper(name, surname, email, password);
                                                         DocumentReference userDocRef = usersRef.document(userId);
                                                         userDocRef.set(helperClass);
                                                         realtimeDBRef.child(userId).setValue(helperClass);
-
-                                                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                                                        startActivity(intent);
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
@@ -99,5 +100,23 @@ public class SignupActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+    }
+    private void sendEmailVerification(FirebaseUser user) {
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // Email verification sent successfully
+                            Toast.makeText(SignupActivity.this, "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show();
+                            // ...
+                        } else {
+                            // Failed to send verification email
+                            Toast.makeText(SignupActivity.this, "Failed to send verification email.", Toast.LENGTH_LONG).show();
+                            Log.e("EmailVerification", "Error sending verification email: " + task.getException().getMessage());
+                        }
+                    }
+                });
     }
 }

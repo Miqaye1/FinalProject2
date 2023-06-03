@@ -52,6 +52,7 @@
             android:name=".PostActivity"
             android:label="Post Activity">
         </activity>
+        <activity android:name=".PostProfileActivity" />
     </application>
 
 </manifest>
