@@ -14,11 +14,12 @@ public class ProjectModel implements Serializable {
         // Default constructor required for Firebase
     }
 
-    public ProjectModel(String description, String productImage, String userId, List<String> tags) {
+    public ProjectModel(String description, String productImage, String userId,String postId, List<String> tags) {
         this.description = description;
         this.productImage = productImage;
         this.userId = userId;
         this.tags = tags;
+        this.postId = postId;
     }
 
     public String getDescription() {

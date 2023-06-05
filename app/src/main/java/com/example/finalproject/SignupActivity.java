@@ -70,7 +70,7 @@ public class SignupActivity extends AppCompatActivity {
                                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                                     @Override
                                                     public void onSuccess(AuthResult authResult) {
-                                                        sendEmailVerification(authResult.getUser());
+                                                       /* sendEmailVerification(authResult.getUser());*/
                                                         String userId = authResult.getUser().getUid();
                                                         DatabaseHelper helperClass = new DatabaseHelper(name, surname, email, password);
                                                         DocumentReference userDocRef = usersRef.document(userId);

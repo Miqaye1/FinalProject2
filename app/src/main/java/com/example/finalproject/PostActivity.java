@@ -61,6 +61,7 @@ public class PostActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseStorage firebaseStorage;
     private ProgressBar progressBar;
+    private TagsInputEditText tagsInputEditText;
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +77,7 @@ public class PostActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.action_bar));
         }
 
+        tagsInputEditText = findViewById(R.id.tagsET);
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         final String userId2 = currentUser.getUid();
         database = FirebaseDatabase.getInstance("https://finalproject-11004-default-rtdb.europe-west1.firebasedatabase.app/");
@@ -98,6 +100,17 @@ public class PostActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*String tagsString = tagsInputEditText.getText().toString();
+                String[] tagsArray = tagsString.split(" ");
+
+                // Show the tags in a Toast message
+                StringBuilder tagsBuilder = new StringBuilder();
+                for (String tag : tagsArray) {
+                    tagsBuilder.append(tag).append("\n");
+                }
+                String tagsText = tagsBuilder.toString().trim();*/
+
+               /* Toast.makeText(PostActivity.this, "Tags: " + tagsText, Toast.LENGTH_SHORT).show();*/
                 progressBar.setVisibility(View.VISIBLE);
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser != null) {
@@ -130,11 +143,6 @@ public class PostActivity extends AppCompatActivity {
                                                 public void onSuccess(Void unused) {
                                                     Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
                                                     progressBar.setVisibility(View.GONE);
-                                                    Intent intent = new Intent(PostActivity.this, MainActivity.class);
-                                                    intent.putExtra("fragmentToLoad", "home_fragment");
-                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                    startActivity(intent);
-                                                    finish();
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
@@ -160,6 +168,7 @@ public class PostActivity extends AppCompatActivity {
                     Toast.makeText(PostActivity.this, "User not authenticated", Toast.LENGTH_SHORT).show();
                 }
             }
+
         });
     }
     private void UploadImage() {

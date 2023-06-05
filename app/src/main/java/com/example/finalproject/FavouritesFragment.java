@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,6 +36,8 @@ public class FavouritesFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
+    private String userId;
+    private String userId2; // Declare userId2 as a member variable
 
     public FavouritesFragment() {
     }
@@ -55,6 +58,10 @@ public class FavouritesFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        userId = currentUser.getUid(); // Assign userId with the current user's ID
     }
 
     @Override
@@ -62,9 +69,6 @@ public class FavouritesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_favourite, container, false);
         recyclerView = view.findViewById(R.id.main_container2);
         recycleList = new ArrayList<>();
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        String userId = currentUser.getUid();
         firebaseDatabase = FirebaseDatabase.getInstance();
         FavouritesAdapter recyclerAdapter = new FavouritesAdapter(recycleList, requireContext());
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
@@ -79,14 +83,39 @@ public class FavouritesFragment extends Fragment {
                     String postId = postSnapshot.getKey();
                     boolean isFavorite = postSnapshot.getValue(Boolean.class);
                     if (isFavorite) {
-                        DatabaseReference postRef = firebaseDatabase.getReference("users").child(userId).child("post").child(postId);
-                        postRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        DatabaseReference usersRef = firebaseDatabase.getReference("users");
+                        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
-                                projectModel.setUserId(userId);
-                                recycleList.add(projectModel);
-                                recyclerAdapter.notifyDataSetChanged();
+                                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                    String userId = userSnapshot.getKey();
+                                    DatabaseReference postsRef = firebaseDatabase.getReference("users").child(userId).child("post");
+                                    postsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                                String postId2 = postSnapshot.getKey();
+                                                if (postId.equals(postId2)) {
+                                                    ProjectModel projectModel = postSnapshot.getValue(ProjectModel.class);
+                                                    if (projectModel != null) {
+                                                        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                                                        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                                                        userId2 = currentUser.getUid();
+                                                        projectModel.setUserId(userId2);
+                                                        recycleList.add(projectModel);
+                                                        recyclerAdapter.notifyDataSetChanged();
+                                                    }
+                                                    break; // Exit the loop since we found the desired post
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                            // Handle the cancellation error if needed
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
