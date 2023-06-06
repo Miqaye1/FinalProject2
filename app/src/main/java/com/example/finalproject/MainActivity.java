@@ -46,9 +46,6 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.home:
                     replaceFragment(new HomeFragment());
                     break;
-                case R.id.plane:
-                    replaceFragment(new PlaneFragment());
-                    break;
                 case R.id.favourites:
                     replaceFragment(new FavouritesFragment());
                     break;
@@ -64,7 +61,11 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentToLoad != null && fragmentToLoad.equals("home_fragment")) {
             // Replace the current fragment with the HomeFragment
             replaceFragment(new HomeFragment());
+        } else if (fragmentToLoad != null && fragmentToLoad.equals("profile_fragment")) {
+            // Replace the current fragment with the ProfileFragment
+            replaceFragment(new ProfileFragment());
         }
+
     }
 
     private void replaceFragment(Fragment fragment) {

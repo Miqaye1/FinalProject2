@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -18,13 +19,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class HomeFragment extends Fragment {
+    private RecyclerView tagRecyclerView;
+    private TagsAdapter tagAdapter;
+    private ArrayList<String> tagList;
     RecyclerView recyclerView;
     FirebaseDatabase firebaseDatabase;
     ArrayList<ProjectModel> recycleList;
@@ -59,6 +65,17 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        tagRecyclerView = view.findViewById(R.id.layout_container);
+        tagRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+
+        // Initialize the tagList and tagAdapter
+        tagList = new ArrayList<>();
+        tagAdapter = new TagsAdapter(tagList, getActivity());
+        tagRecyclerView.setAdapter(tagAdapter);
+
+        // Retrieve tags from the database and populate the tagList
+        retrieveTagsFromDatabase();
+
         recyclerView = view.findViewById(R.id.main_container);
         recycleList = new ArrayList<>();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -83,7 +100,12 @@ public class HomeFragment extends Fragment {
                     for (DataSnapshot dataSnapshot : postSnapshots) {
                         ProjectModel projectModel = dataSnapshot.getValue(ProjectModel.class);
                         projectModel.setUserId(userId);
-                        newRecycleList.add(projectModel); // Add to newRecycleList in reverse order
+
+                        if (projectModel.getTags() == null) {
+                            projectModel.setTags(new HashMap<>());
+                        }
+
+                        newRecycleList.add(projectModel);
                     }
                 }
                 recycleList.clear(); // Clear the original recycleList
@@ -113,5 +135,32 @@ public class HomeFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.home_menu, menu); // Inflate the menu resource
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void retrieveTagsFromDatabase() {
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                tagList.clear();
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot postSnapshot : userSnapshot.child("post").getChildren()) {
+                        String postId = postSnapshot.getKey();
+                        for (DataSnapshot tagSnapshot : postSnapshot.child("tags").getChildren()) {
+                            String tag = tagSnapshot.getKey();
+                            if (tagSnapshot.getValue() != null && tagSnapshot.getValue().equals(true)) {
+                                tagList.add(tag);
+                            }
+                        }
+                    }
+                }
+                tagAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if needed
+            }
+        });
     }
 }

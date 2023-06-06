@@ -51,6 +51,8 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostActivity extends AppCompatActivity {
     TextView description;
@@ -132,6 +134,17 @@ public class PostActivity extends AppCompatActivity {
                                     String descriptionText = description.getText().toString();
                                     model.setDescription(descriptionText);
                                     model.setUserId(userId);
+                                    String tagsString = tagsInputEditText.getText().toString();
+                                    String[] tagsArray = tagsString.split(" ");
+
+                                    // Create a HashMap to store the tags
+                                    Map<String, Boolean> tagsMap = new HashMap<>();
+                                    for (String tag : tagsArray) {
+                                        // Add each tag to the HashMap
+                                        tagsMap.put(tag, true);
+                                    }
+                                    // Set the tags in the model
+                                    model.setTags(tagsMap);
                                     DatabaseReference userPostRef = database.getReference("users")
                                             .child(userId)
                                             .child("post");
@@ -143,6 +156,11 @@ public class PostActivity extends AppCompatActivity {
                                                 public void onSuccess(Void unused) {
                                                     Toast.makeText(PostActivity.this, "Posted Successfully", Toast.LENGTH_SHORT).show();
                                                     progressBar.setVisibility(View.GONE);
+                                                    Intent intent = new Intent(PostActivity.this, MainActivity.class);
+                                                    intent.putExtra("fragmentToLoad", "home_fragment");
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                    startActivity(intent);
+                                                    finish();
                                                 }
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override

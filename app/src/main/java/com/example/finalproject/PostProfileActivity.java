@@ -16,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -66,7 +69,7 @@ public class PostProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    //String profileImageUrl = dataSnapshot.child("profile_picture").getValue(String.class);
+                    String profileImageUrl = dataSnapshot.child("profile_picture").getValue(String.class);
                     String name = dataSnapshot.child("name").getValue(String.class);
                     String surname = dataSnapshot.child("surname").getValue(String.class);
                     String email_2 = dataSnapshot.child("email").getValue(String.class);
@@ -74,10 +77,15 @@ public class PostProfileActivity extends AppCompatActivity {
                     email.setText(email_2);
                     nameAndSurname.setText(name + " " + surname);
 
-                    // Load the profile_image using Picasso
-                   /* Picasso.get().load(profileImageUrl)
-                            .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user) // Placeholder image while loading
-                            .into(profileImage);*/
+                    RequestOptions requestOptions = new RequestOptions()
+                            .placeholder(R.drawable.rsz_1rsz_1rsz_1rsz_1user)
+                            .error(R.drawable.rsz_1rsz_1rsz_1rsz_1user);
+                    Glide.with(PostProfileActivity.this)
+                            .load(profileImageUrl)
+                            .apply(requestOptions)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .skipMemoryCache(false)
+                            .into(profileImage);
                 } else {
                     // Handle the case where the profile_image URL is not available
                     // You can display a default profile_image or show an error message

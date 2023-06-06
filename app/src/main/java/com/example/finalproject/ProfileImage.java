@@ -102,19 +102,12 @@ public class ProfileImage extends AppCompatActivity {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Hide activity buttons
                 closeButton.setVisibility(View.GONE);
-                // Create and display the fragment
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-                ProfileFragment profileFragment = new ProfileFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("imageUri", ImageUri.toString());
-                profileFragment.setArguments(bundle);
-                fragmentTransaction.replace(android.R.id.content, profileFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
+                Intent intent = new Intent(ProfileImage.this, MainActivity.class);
+                intent.putExtra("fragmentToLoad", "profile_fragment");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             }
         });
         saveButton.setOnClickListener(new View.OnClickListener() {
