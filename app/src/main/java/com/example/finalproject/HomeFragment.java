@@ -25,52 +25,45 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements TagsAdapter.OnTagClickListener {
     private RecyclerView tagRecyclerView;
     private TagsAdapter tagAdapter;
     private ArrayList<String> tagList;
-    RecyclerView recyclerView;
-    FirebaseDatabase firebaseDatabase;
-    ArrayList<ProjectModel> recycleList;
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView recyclerView;
+    private FirebaseDatabase firebaseDatabase;
+    private ArrayList<ProjectModel> recycleList;
+    private FavouritesAdapter recyclerAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
     }
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    // Rest of the code
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        recyclerView = view.findViewById(R.id.main_container);
+        recycleList = new ArrayList<>();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        recyclerAdapter = new FavouritesAdapter(recycleList, requireContext());
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        recyclerView.setAdapter(recyclerAdapter);
+
         tagRecyclerView = view.findViewById(R.id.layout_container);
         tagRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
 
         // Initialize the tagList and tagAdapter
         tagList = new ArrayList<>();
         tagAdapter = new TagsAdapter(tagList, getActivity());
+        tagAdapter.setOnTagClickListener(this);
         tagRecyclerView.setAdapter(tagAdapter);
 
         // Retrieve tags from the database and populate the tagList
@@ -109,7 +102,7 @@ public class HomeFragment extends Fragment {
                     }
                 }
                 recycleList.clear(); // Clear the original recycleList
-                recycleList.addAll(newRecycleList); // Add newRecycleList to recycleList
+                recycleList.addAll(0, newRecycleList); // Add newRecycleList to recycleList
                 recyclerAdapter.notifyDataSetChanged();
             }
 
@@ -119,6 +112,11 @@ public class HomeFragment extends Fragment {
             }
         });
         return view;
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true); // Enable options menu for the fragment
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -142,19 +140,86 @@ public class HomeFragment extends Fragment {
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                tagList.clear();
+                HashMap<String, Integer> tagCountMap = new HashMap<>();
+
+                // Iterate through each user
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    // Iterate through each post of the user
                     for (DataSnapshot postSnapshot : userSnapshot.child("post").getChildren()) {
-                        String postId = postSnapshot.getKey();
-                        for (DataSnapshot tagSnapshot : postSnapshot.child("tags").getChildren()) {
-                            String tag = tagSnapshot.getKey();
-                            if (tagSnapshot.getValue() != null && tagSnapshot.getValue().equals(true)) {
-                                tagList.add(tag);
+                        // Get the tags of the post
+                        DataSnapshot tagsSnapshot = postSnapshot.child("tags");
+                        if (tagsSnapshot.exists()) {
+                            // Iterate through each tag
+                            for (DataSnapshot tagSnapshot : tagsSnapshot.getChildren()) {
+                                String tag = tagSnapshot.getKey();
+                                if (tagSnapshot.getValue() != null && tagSnapshot.getValue().equals(true)) {
+                                    // Increment the count of the tag
+                                    if (tagCountMap.containsKey(tag)) {
+                                        int count = tagCountMap.get(tag);
+                                        tagCountMap.put(tag, count + 1);
+                                    } else {
+                                        tagCountMap.put(tag, 1);
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
+                // Sort the tags based on their count in descending order
+                List<Map.Entry<String, Integer>> sortedTags = new ArrayList<>(tagCountMap.entrySet());
+                Collections.sort(sortedTags, new Comparator<Map.Entry<String, Integer>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Integer> entry1, Map.Entry<String, Integer> entry2) {
+                        return entry2.getValue().compareTo(entry1.getValue());
+                    }
+                });
+
+                // Clear the existing tagList
+                tagList.clear();
+
+                // Add the tags to the tagList in the sorted order
+                for (Map.Entry<String, Integer> entry : sortedTags) {
+                    tagList.add(entry.getKey());
+                }
+
                 tagAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error if needed
+            }
+        });
+    }
+
+    @Override
+    public void onTagClick(String tag) {
+        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("users").child("userId").child("post");
+
+        postsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<ProjectModel> filteredList = new ArrayList<>();
+
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    for (DataSnapshot postSnapshot : userSnapshot.getChildren()) {
+                        String postId = postSnapshot.getKey();
+                        if (postSnapshot.child("tags").child(tag).getValue() != null
+                                && postSnapshot.child("tags").child(tag).getValue().equals(true)) {
+                            ProjectModel post = postSnapshot.getValue(ProjectModel.class);
+                            if (post != null) {
+                                post.setPostId(postId);
+                                filteredList.add(0, post);
+                            }
+                        }
+                    }
+                }
+
+                // Update the recycleList with the filteredList
+                recycleList.clear();
+                recycleList.addAll(filteredList);
+                recyclerAdapter.notifyDataSetChanged();
             }
 
             @Override

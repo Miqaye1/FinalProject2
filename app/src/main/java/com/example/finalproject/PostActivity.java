@@ -102,23 +102,20 @@ public class PostActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*String tagsString = tagsInputEditText.getText().toString();
-                String[] tagsArray = tagsString.split(" ");
-
-                // Show the tags in a Toast message
-                StringBuilder tagsBuilder = new StringBuilder();
-                for (String tag : tagsArray) {
-                    tagsBuilder.append(tag).append("\n");
-                }
-                String tagsText = tagsBuilder.toString().trim();*/
-
-               /* Toast.makeText(PostActivity.this, "Tags: " + tagsText, Toast.LENGTH_SHORT).show();*/
                 progressBar.setVisibility(View.VISIBLE);
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser != null) {
                     final String userId = currentUser.getUid();
                     final StorageReference reference = firebaseStorage.getReference().child("post")
                             .child(System.currentTimeMillis() + "");
+
+                    // Check if an image is selected
+                    if (ImageUri == null) {
+                        Toast.makeText(PostActivity.this, "Please select an image", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        return;
+                    }
+
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     Bitmap bitmap = ((BitmapDrawable) productImage.getDrawable()).getBitmap();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
@@ -131,20 +128,30 @@ public class PostActivity extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     ProjectModel model = new ProjectModel();
                                     model.setProductImage(uri.toString());
-                                    String descriptionText = description.getText().toString();
-                                    model.setDescription(descriptionText);
-                                    model.setUserId(userId);
-                                    String tagsString = tagsInputEditText.getText().toString();
-                                    String[] tagsArray = tagsString.split(" ");
 
-                                    // Create a HashMap to store the tags
-                                    Map<String, Boolean> tagsMap = new HashMap<>();
-                                    for (String tag : tagsArray) {
-                                        // Add each tag to the HashMap
-                                        tagsMap.put(tag, true);
+                                    // Check if a description is entered
+                                    String descriptionText = description.getText().toString().trim();
+                                    if (!descriptionText.isEmpty()) {
+                                        model.setDescription(descriptionText);
                                     }
-                                    // Set the tags in the model
-                                    model.setTags(tagsMap);
+
+                                    model.setUserId(userId);
+                                    String tagsString = tagsInputEditText.getText().toString().trim();
+
+                                    // Check if tags are entered
+                                    if (!tagsString.isEmpty()) {
+                                        String[] tagsArray = tagsString.split(" ");
+
+                                        // Create a HashMap to store the tags
+                                        Map<String, Boolean> tagsMap = new HashMap<>();
+                                        for (String tag : tagsArray) {
+                                            // Add each tag to the HashMap
+                                            tagsMap.put(tag, true);
+                                        }
+                                        // Set the tags in the model
+                                        model.setTags(tagsMap);
+                                    }
+
                                     DatabaseReference userPostRef = database.getReference("users")
                                             .child(userId)
                                             .child("post");
@@ -186,7 +193,6 @@ public class PostActivity extends AppCompatActivity {
                     Toast.makeText(PostActivity.this, "User not authenticated", Toast.LENGTH_SHORT).show();
                 }
             }
-
         });
     }
     private void UploadImage() {

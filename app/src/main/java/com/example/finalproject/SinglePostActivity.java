@@ -20,7 +20,10 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,6 +36,7 @@ import com.squareup.picasso.Picasso;
 public class SinglePostActivity extends AppCompatActivity {
 
     TextView singleDescription;
+    private AppCompatButton deleteButton;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
 
@@ -110,6 +114,59 @@ public class SinglePostActivity extends AppCompatActivity {
         });
         ToggleButton toggleButton = findViewById(R.id.toggleButton);
         String postId = getIntent().getStringExtra("postId");
+        deleteButton = findViewById(R.id.delete_button);
+        DatabaseReference currentUserPostRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(userId2)
+                .child("post")
+                .child(postId);
+
+        currentUserPostRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // The post belongs to the current user
+                    deleteButton.setVisibility(View.VISIBLE);
+                } else {
+                    // The post does not belong to the current user
+                    deleteButton.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Handle any errors that occur
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Delete the post from the Firebase Realtime Database
+            currentUserPostRef.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        // Post deleted successfully
+                        Toast.makeText(SinglePostActivity.this, "Post deleted", Toast.LENGTH_SHORT).show();
+
+                        // Remove the post from the UI
+                        singleDescription.setText("");
+                        // Remove the post image using Picasso or any other image-loading library
+                        // Hide other post-related views if necessary
+                        // ...
+
+                        // Finish the activity or navigate back to the previous screen
+                        finish();
+                    } else {
+                        // Failed to delete the post
+                        Toast.makeText(SinglePostActivity.this, "Failed to delete post", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    });
+
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId2);
         DatabaseReference favouritesRef = userRef.child("favourites");
         favouritesRef.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {

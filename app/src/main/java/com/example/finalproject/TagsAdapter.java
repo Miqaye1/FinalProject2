@@ -31,19 +31,25 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
+    private OnTagClickListener onTagClickListener;
+
+    public interface OnTagClickListener {
+        void onTagClick(String tag);
+    }
+
+    public void setOnTagClickListener(OnTagClickListener listener) {
+        this.onTagClickListener = listener;
+    }
 
     private ArrayList<String> tagList;
     private Context context;
     private DatabaseReference postsRef;
     private ArrayList<ProjectModel> matchingPostsList;
-    private PostAdapter postAdapter;
 
     public TagsAdapter(ArrayList<String> tagList, Context context) {
         this.tagList = tagList;
         this.context = context;
         this.postsRef = FirebaseDatabase.getInstance().getReference().child("users").child("userId").child("post");
-        this.matchingPostsList = new ArrayList<>();
-        this.postAdapter = new PostAdapter(matchingPostsList, context);
     }
 
     @NonNull
@@ -60,31 +66,9 @@ public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
         holder.tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        matchingPostsList.clear();
-                        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                            for (DataSnapshot postSnapshot : userSnapshot.getChildren()) {
-                                String postId = postSnapshot.getKey();
-                                if (postSnapshot.child("tags").child(tag).getValue() != null
-                                        && postSnapshot.child("tags").child(tag).getValue().equals(true)) {
-                                    ProjectModel post = postSnapshot.getValue(ProjectModel.class);
-                                    if (post != null) {
-                                        post.setPostId(postId);
-                                        matchingPostsList.add(post);
-                                    }
-                                }
-                            }
-                        }
-                        postAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Handle the error if needed
-                    }
-                });
+                if (onTagClickListener != null) {
+                    onTagClickListener.onTagClick(tag);
+                }
             }
         });
     }

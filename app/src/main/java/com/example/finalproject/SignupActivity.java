@@ -76,6 +76,8 @@ public class SignupActivity extends AppCompatActivity {
                                                         DocumentReference userDocRef = usersRef.document(userId);
                                                         userDocRef.set(helperClass);
                                                         realtimeDBRef.child(userId).setValue(helperClass);
+                                                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                                        startActivity(intent);
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {

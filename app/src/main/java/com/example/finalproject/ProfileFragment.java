@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -28,11 +31,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class ProfileFragment extends Fragment {
 
     ImageView profileImage;
-    LinearLayout LogOut;
-    TextView name, surname;
+    ImageButton LogOut;
+    TextView name, email;
+    ArrayList<ProjectModel> recycleList;
+    RecyclerView recyclerView;
+    private DatabaseReference databaseReference;
 
 
     private static final String ARG_PARAM1 = "param1";
@@ -132,10 +140,9 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         profileImage = view.findViewById(R.id.imageView5);
         name = view.findViewById(R.id.textView2);
-        surname = view.findViewById(R.id.textView8);
+        email = view.findViewById(R.id.textView8);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
-
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
@@ -144,16 +151,44 @@ public class ProfileFragment extends Fragment {
 
             DatabaseReference userRef = usersRef.child(userId);
 
+            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+            recyclerView = view.findViewById(R.id.profile_main_container);
+            recycleList = new ArrayList<>();
+            PostProfileAdapter recyclerAdapter = new PostProfileAdapter(recycleList, requireContext());
+            recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+            recyclerView.setAdapter(recyclerAdapter);
+
+            DatabaseReference postsRef = firebaseDatabase.getReference("users").child(userId).child("post");
+            postsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    recycleList.clear();
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        String postId = postSnapshot.getKey();
+                        ProjectModel projectModel = postSnapshot.getValue(ProjectModel.class);
+                        projectModel.setUserId(userId);
+                        projectModel.setPostId(postId); // Add the postId to the project model
+                        recycleList.add(projectModel);
+                    }
+                    recyclerAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Handle the cancellation error if needed
+                }
+            });
+
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         String name2 = dataSnapshot.child("name").getValue(String.class);
                         String surname2 = dataSnapshot.child("surname").getValue(String.class);
-
+                        String email2 = dataSnapshot.child("email").getValue(String.class);
                         // Set the retrieved data in TextViews
-                        name.setText(name2);
-                        surname.setText(surname2);
+                        name.setText(name2 + " " + surname2);
+                        email.setText(email2);
                     } else {
                         // Handle the case where the user node does not exist
                     }
@@ -174,7 +209,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        LogOut = view.findViewById(R.id.LogOut);
+        LogOut = view.findViewById(R.id.iconButton);
         LogOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
