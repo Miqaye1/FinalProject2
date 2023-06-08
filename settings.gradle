@@ -7,5 +7,5 @@
     }
 
 
-    rootProject.name = "FinalProject"
+    rootProject.name = "TravelEasy"
     include ':app'

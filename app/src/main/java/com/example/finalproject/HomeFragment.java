@@ -68,8 +68,6 @@ public class HomeFragment extends Fragment implements TagsAdapter.OnTagClickList
 
         // Retrieve tags from the database and populate the tagList
         retrieveTagsFromDatabase();
-
-        recyclerView = view.findViewById(R.id.main_container);
         recycleList = new ArrayList<>();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -195,28 +193,34 @@ public class HomeFragment extends Fragment implements TagsAdapter.OnTagClickList
 
     @Override
     public void onTagClick(String tag) {
-        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference().child("users").child("userId").child("post");
+/*        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        postsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ArrayList<ProjectModel> filteredList = new ArrayList<>();
 
-                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                    for (DataSnapshot postSnapshot : userSnapshot.getChildren()) {
-                        String postId = postSnapshot.getKey();
-                        if (postSnapshot.child("tags").child(tag).getValue() != null
-                                && postSnapshot.child("tags").child(tag).getValue().equals(true)) {
-                            ProjectModel post = postSnapshot.getValue(ProjectModel.class);
-                            if (post != null) {
-                                post.setPostId(postId);
-                                filteredList.add(0, post);
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                        String userId = userSnapshot.getKey();
+                        DataSnapshot postSnapshot = userSnapshot.child("post");
+
+                        for (DataSnapshot postChildSnapshot : postSnapshot.getChildren()) {
+                            String postId = postChildSnapshot.getKey();
+                            DataSnapshot tagsSnapshot = postChildSnapshot.child("tags");
+
+                            if (tagsSnapshot.child(tag).exists() && tagsSnapshot.child(tag).getValue(Boolean.class)) {
+                                ProjectModel post = postChildSnapshot.getValue(ProjectModel.class);
+                                if (post != null) {
+                                    post.setUserId(userId);
+                                    filteredList.add(post);
+                                }
                             }
                         }
                     }
                 }
 
-                // Update the recycleList with the filteredList
+                // Update the recyclerList with the filteredList
                 recycleList.clear();
                 recycleList.addAll(filteredList);
                 recyclerAdapter.notifyDataSetChanged();
@@ -226,6 +230,6 @@ public class HomeFragment extends Fragment implements TagsAdapter.OnTagClickList
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 // Handle the error if needed
             }
-        });
+        });*/
     }
 }

@@ -13,8 +13,6 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.view.Menu;
-import android.view.MenuInflater;
 
 import com.example.finalproject.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {

@@ -25,8 +25,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.UUID;
-
 public class SignupActivity extends AppCompatActivity {
 
     ActivitySignupBinding binding;

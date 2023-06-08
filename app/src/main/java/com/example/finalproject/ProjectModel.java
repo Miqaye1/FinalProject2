@@ -1,10 +1,7 @@
 package com.example.finalproject;
 
 import java.io.Serializable;
-import java.util.List;
 
-import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 public class ProjectModel implements Serializable {
